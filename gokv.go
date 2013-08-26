@@ -20,6 +20,7 @@ type Log interface {
 type Store struct {
 	log Log
 	data map[string]interface{}
+	idgen *IdGen
 }
 
 type BadKey struct {
@@ -62,7 +63,9 @@ func Open(path string) (*Store, error) {
 		return nil, err
 	}
 
-	store := Store{data: make(map[string]interface{})}
+	store := Store{
+		data: make(map[string]interface{}),
+		idgen: NewIdGen()}
 	if os.IsExist(err) {
 		reader := bufio.NewReader(f)
 		var line []byte
@@ -90,7 +93,11 @@ func Open(path string) (*Store, error) {
 				log.Printf("Error %s decoding \"%s\"", err, result[2])
 				return nil, err
 			}
-			store.data[string(result[1])] = v
+			k := string(result[1])
+
+			store.idgen.OnKey(k)
+
+			store.data[k] = v
 		}
 
 		// reopen write log in append mode
@@ -133,7 +140,7 @@ func (s *Store) Put(k string, v interface{}) error {
 	if ke != nil {
 		return ke
 	}
-	
+
 	s.data[k] = v
 	writelog := s.log
 	_, err := writelog.WriteString(k + "=")
@@ -163,6 +170,10 @@ func (s *Store) Delete(k string) (interface{}, error) {
 		return nil, err
 	}
 	return v, nil
+}
+
+func (s *Store) NewId(prefix string) string {
+	return s.idgen.NewId(prefix)
 }
 
 func (s *Store) Dump() {

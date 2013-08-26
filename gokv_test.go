@@ -3,7 +3,7 @@ package gokv
 import (
 	"io"
 	"os"
-	// "math/rand"
+	"math/rand"
 	"bufio"
 	"strings"
 	"testing"
@@ -31,9 +31,36 @@ func BenchmarkWrites(b *testing.B) {
 
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		// i1 := rand.Int() % wordcount
-		// i2 := rand.Int() % wordcount
+		i1 := rand.Int() % wordcount
+		i2 := rand.Int() % wordcount
 		// log.Printf("%d %s %d %s", i1, words[i1], i2, words[i2])
-		store.Put(words[i % wordcount], words[i % wordcount])
+		store.Put(words[i1], words[i2])
 	}
+}
+
+func assertEqual(expected interface{}, actual interface{}, t *testing.T) {
+	if expected != actual {
+		t.Fatalf("Expected \"%s\", got \"%s\"", expected, actual)
+	}
+}
+
+func TestIdgenNewId(t *testing.T) {
+	idgen := NewIdGen()
+	assertEqual("foo.1", idgen.NewId("foo"), t)
+	assertEqual("bar.1", idgen.NewId("bar"), t)
+	assertEqual("foo.2", idgen.NewId("foo"), t)
+}
+
+func TestIdgenOnKey(t *testing.T) {
+	idgen := NewIdGen()
+
+	idgen.OnKey("foo.15")
+	idgen.OnKey("foo.10")
+	idgen.OnKey("bar.20")
+	idgen.OnKey("foo.bar.5")
+
+	assertEqual("foo.16", idgen.NewId("foo"), t)
+	assertEqual("bar.21", idgen.NewId("bar"), t)
+	assertEqual("foo.bar.6", idgen.NewId("foo.bar"), t)
+	assertEqual("baz.1", idgen.NewId("baz"), t)
 }
