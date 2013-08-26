@@ -30,10 +30,12 @@ func (b *BadKey) Error() string {
 	return fmt.Sprintf("Bad key %s", b.key)
 }
 
-var writeLineRegex *regexp.Regexp 
+var writeLineRegex *regexp.Regexp
+var validKeyRegex  *regexp.Regexp
 
 func init() {
 	writeLineRegex = regexp.MustCompile("^([a-zA-Z0-9\\.\\-_]+)=(.*)\n")
+	validKeyRegex  = regexp.MustCompile("^[A-z0-9\\.\\-_]+$")
 }
 
 type ValueReader struct {
@@ -110,11 +112,28 @@ func (s *Store) Close() error {
 	return s.log.Close()
 }
 
+func keyError(k string) error {
+	isValid := validKeyRegex.MatchString(k)
+	if ! isValid {
+		return &BadKey{key: k}
+	}
+	return nil
+}
+
 func (s *Store) Get(k string) (interface{}, error) {
+	ke := keyError(k)
+	if ke != nil {
+		return nil, ke
+	}
 	return s.data[k], nil
 }
 
 func (s *Store) Put(k string, v interface{}) error {
+	ke := keyError(k)
+	if ke != nil {
+		return ke
+	}
+	
 	s.data[k] = v
 	writelog := s.log
 	_, err := writelog.WriteString(k + "=")
@@ -136,6 +155,7 @@ func (s *Store) Delete(k string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	delete(s.data, k)
 
 	_, err = s.log.WriteString(k + "=null\n")
