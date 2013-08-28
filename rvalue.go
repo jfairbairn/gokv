@@ -2,69 +2,39 @@ package gokv
 
 import (
 	"io"
-	"bufio"
 	"encoding/json"
 )
 
-type RValue interface {
-	Write(w io.Writer)
-	Value() interface{}
+type rvalue interface {
+	write(w io.Writer)
 }
 
-type IntValue struct {
-	v int64
+type intvalue int64
+
+func (val *intvalue) write(w io.Writer) {
+	json.NewEncoder(w).Encode(val)
 }
 
-func (val *IntValue) Write(w io.Writer) {
-	json.NewEncoder(w).Encode(val.v)
+type boolvalue bool
+
+func (val *boolvalue) write(w io.Writer) {
+	json.NewEncoder(w).Encode(val)
 }
 
-func (val *IntValue) Value() interface{} {
-	return val.v
+type stringvalue string
+
+func (val *stringvalue) write(w io.Writer) {
+	json.NewEncoder(w).Encode(val)
 }
 
-type BoolValue struct {
-	v bool
+type floatvalue float64
+
+func (val *floatvalue) write(w io.Writer) {
+	json.NewEncoder(w).Encode(val)
 }
 
-func (val *BoolValue) Write(w io.Writer) {
-	json.NewEncoder(w).Encode(val.v)
-}
+type nullvalue struct {}
 
-func (val *BoolValue) Value() interface{} {
-	return val.v
-}
-
-type StringValue struct {
-	v string
-}
-
-func (val *StringValue) Write(w io.Writer) {
-	json.NewEncoder(w).Encode(val.v)
-}
-
-func (val *StringValue) Value() interface{} {
-	return val.v
-}
-
-type FloatValue struct {
-	v float64
-}
-
-func (val *FloatValue) Write(w io.Writer) {
-	json.NewEncoder(w).Encode(val.v)
-}
-
-func (val *FloatValue) Value() interface{} {
-	return val.v
-}
-
-type NullValue struct {}
-
-func (val *NullValue) Write(w io.Writer) {
-	bufio.NewWriter(w).WriteString("null")
-}
-
-func (val *NullValue) Value() interface{} {
-	return nil
+func (val *nullvalue) write(w io.Writer) {
+	json.NewEncoder(w).Encode(nil)
 }
