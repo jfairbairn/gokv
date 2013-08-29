@@ -110,6 +110,9 @@ func (txlog *Txlog) Write(op string, k string, v ...interface{}) error {
 	if err != nil {
 		return err
 	}
+	if v == nil {
+		v = make([]interface{}, 0, 0)
+	}
 	err = json.NewEncoder(log).Encode(v)
 	return err
 }
