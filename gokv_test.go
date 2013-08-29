@@ -7,7 +7,6 @@ import (
 	"os"
 	"strings"
 	"testing"
-	// "log"
 )
 
 func BenchmarkWrites(b *testing.B) {
@@ -44,6 +43,12 @@ func assertEqual(expected interface{}, actual interface{}, t *testing.T) {
 	}
 }
 
+func failOnError(err error, t *testing.T) {
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+}
+
 func TestIdgenNewId(t *testing.T) {
 	idgen := NewIdGen()
 	assertEqual("foo.1", idgen.NewId("foo"), t)
@@ -63,4 +68,29 @@ func TestIdgenOnKey(t *testing.T) {
 	assertEqual("bar.21", idgen.NewId("bar"), t)
 	assertEqual("foo.bar.6", idgen.NewId("foo.bar"), t)
 	assertEqual("baz.1", idgen.NewId("baz"), t)
+}
+
+func TestPersistence(t *testing.T) {
+	os.Remove("test_persistence.gokv")
+	store, err := Open("test_persistence.gokv")
+	failOnError(err, t)
+
+	store.Put(store.NewId("foo"), "bar")
+	store.Put(store.NewId("foo"), "baz")
+
+	store.Close()
+
+	store, err = Open("test_persistence.gokv")
+	failOnError(err, t)
+
+	foo1, err := store.Get("foo.1")
+	failOnError(err, t)
+	assertEqual("bar", foo1, t)
+
+	foo2, err := store.Get("foo.2")
+	failOnError(err, t)
+	assertEqual("baz", foo2, t)
+
+	assertEqual("foo.3", store.NewId("foo"), t)
+
 }

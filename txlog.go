@@ -40,7 +40,7 @@ func OpenTxlog(path string, store *Store) error {
 		return err
 	}
 
-	if os.IsExist(err) {
+	if err == nil {
 		log.Print("Start")
 		reader := bufio.NewReader(f)
 		var line []byte
