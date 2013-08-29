@@ -1,10 +1,10 @@
 package gokv
 
 import (
-	"io"
-	"os"
-	"math/rand"
 	"bufio"
+	"io"
+	"math/rand"
+	"os"
 	"strings"
 	"testing"
 	// "log"
@@ -16,7 +16,7 @@ func BenchmarkWrites(b *testing.B) {
 	words := make([]string, 10000, 110000)
 	r := bufio.NewReader(f)
 	var err error
-	for i:=0; err != io.EOF; i++ {
+	for i := 0; err != io.EOF; i++ {
 		var word string
 		word, err = r.ReadString('\n')
 		word = strings.TrimSpace(strings.Trim(word, "\r\n"))

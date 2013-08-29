@@ -1,42 +1,25 @@
 package gokv
 
 import (
-	// "encoding/json"
-	"os"
-	"io"
-	"fmt"
-	"log"
 	"bufio"
-	"regexp"
 	"encoding/json"
+	"fmt"
+	"io"
+	"log"
+	"os"
+	"regexp"
 )
 
-type Log interface {
-	io.WriteCloser
-	WriteString(s string) (ret int, err error)
-	Sync() error
-}
-
 type Store struct {
-	log Log
-	data map[string]interface{}
+	log   Log
+	data  map[string]interface{}
 	idgen *IdGen
 }
 
-type BadKey struct {
-	key string
-}
-
-func (b *BadKey) Error() string {
-	return fmt.Sprintf("Bad key %s", b.key)
-}
-
 var writeLineRegex *regexp.Regexp
-var validKeyRegex  *regexp.Regexp
 
 func init() {
 	writeLineRegex = regexp.MustCompile("^([a-zA-Z0-9\\.\\-_]+)=(.*)\n")
-	validKeyRegex  = regexp.MustCompile("^[A-z0-9\\.\\-_]+$")
 }
 
 type ValueReader struct {
@@ -64,7 +47,7 @@ func Open(path string) (*Store, error) {
 	}
 
 	store := Store{
-		data: make(map[string]interface{}),
+		data:  make(map[string]interface{}),
 		idgen: NewIdGen()}
 	if os.IsExist(err) {
 		reader := bufio.NewReader(f)
@@ -72,7 +55,7 @@ func Open(path string) (*Store, error) {
 
 		vr := new(ValueReader)
 
-		for ; err != io.EOF ; {
+		for err != io.EOF {
 			line, err = reader.ReadBytes('\n')
 			results := writeLineRegex.FindAllSubmatch(line, 1)
 			if len(results) != 1 {
@@ -117,14 +100,6 @@ func Open(path string) (*Store, error) {
 // Closes the write log.
 func (s *Store) Close() error {
 	return s.log.Close()
-}
-
-func keyError(k string) error {
-	isValid := validKeyRegex.MatchString(k)
-	if ! isValid {
-		return &BadKey{key: k}
-	}
-	return nil
 }
 
 func (s *Store) Get(k string) (interface{}, error) {

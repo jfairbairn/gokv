@@ -1,8 +1,8 @@
 package gokv
 
 import (
-	"io"
 	"encoding/json"
+	"io"
 )
 
 type rvalue interface {
@@ -33,7 +33,7 @@ func (val *floatvalue) writeJSON(w io.Writer) {
 	json.NewEncoder(w).Encode(val)
 }
 
-type nullvalue struct {}
+type nullvalue struct{}
 
 func (val *nullvalue) writeJSON(w io.Writer) {
 	json.NewEncoder(w).Encode(nil)

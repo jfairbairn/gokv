@@ -2,8 +2,8 @@ package gokv
 
 import (
 	"fmt"
-	"regexp"
 	"math/big"
+	"regexp"
 )
 
 type IdGen struct {
@@ -15,7 +15,7 @@ func NewIdGen() *IdGen {
 }
 
 func (idgen *IdGen) NewId(prefix string) string {
-	id := idgen.ids[prefix]+1
+	id := idgen.ids[prefix] + 1
 	idgen.ids[prefix] = id
 	return fmt.Sprintf("%s.%d", prefix, id)
 }
@@ -23,7 +23,7 @@ func (idgen *IdGen) NewId(prefix string) string {
 var keyRegex *regexp.Regexp
 
 func init() {
-	keyRegex = regexp.MustCompile("^(.*)\\.(\\d+)$") 
+	keyRegex = regexp.MustCompile("^(.*)\\.(\\d+)$")
 }
 
 func (idgen *IdGen) OnKey(key string) {
@@ -35,7 +35,7 @@ func (idgen *IdGen) OnKey(key string) {
 		return
 	}
 	prefix := results[0][1]
-	
+
 	big := big.NewInt(0)
 	big.SetString(results[0][2], 10)
 
