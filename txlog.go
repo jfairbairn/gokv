@@ -41,7 +41,6 @@ func OpenTxlog(path string, store *Store) error {
 	}
 
 	if err == nil {
-		log.Print("Start")
 		reader := bufio.NewReader(f)
 		var line []byte
 
@@ -51,7 +50,6 @@ func OpenTxlog(path string, store *Store) error {
 			line, err = reader.ReadBytes('\n')
 			results := writeLineRegex.FindAllSubmatch(line, 1)
 			if len(results) != 1 {
-				log.Printf("No match for line %s", line)
 				continue
 			}
 			result := results[0]

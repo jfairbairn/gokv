@@ -94,3 +94,25 @@ func TestPersistence(t *testing.T) {
 	assertEqual("foo.3", store.NewId("foo"), t)
 
 }
+
+func TestDelete(t *testing.T) {
+	os.Remove("test_persistence.gokv")
+	store, err := Open("test_persistence.gokv")
+	failOnError(err, t)
+
+	store.Put("foo", "bar")
+	store.Delete("foo")
+
+	v, err := store.Get("foo")
+	assertEqual(nil, err, t)
+	assertEqual(nil, v, t)
+
+	store.Close()
+
+	store, err = Open("test_persistence.gokv")
+
+	v, err = store.Get("foo")
+	assertEqual(nil, err, t)
+	assertEqual(nil, v, t)
+
+}
