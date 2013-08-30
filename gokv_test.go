@@ -104,15 +104,15 @@ func TestDelete(t *testing.T) {
 	store.Delete("foo")
 
 	v, err := store.Get("foo")
-	assertEqual(nil, err, t)
-	assertEqual(nil, v, t)
+	assertEqual("Nil value found for key foo", err.Error(), t)
+	assertEqual("", v, t)
 
 	store.Close()
 
 	store, err = Open("test_persistence.gokv")
 
 	v, err = store.Get("foo")
-	assertEqual(nil, err, t)
-	assertEqual(nil, v, t)
+	assertEqual("Nil value found for key foo", err.Error(), t)
+	assertEqual("", v, t)
 
 }

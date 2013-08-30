@@ -28,15 +28,27 @@ func (s *Store) Close() error {
 	return s.log.Close()
 }
 
-func (s *Store) Get(k string) (interface{}, error) {
-	ke := keyError(k)
-	if ke != nil {
-		return nil, ke
-	}
-	return s.data[k], nil
+type NotFound struct {
+	key string
 }
 
-func (s *Store) Put(k string, v interface{}) error {
+func (nf *NotFound) Error() string {
+	return fmt.Sprintf("Nil value found for key %s", nf.key)
+}
+
+func (s *Store) Get(k string) (string, error) {
+	ke := keyError(k)
+	if ke != nil {
+		return "", ke
+	}
+	val := s.data[k]
+	if val == nil {
+		return "", &NotFound{key:k}
+	}
+	return s.data[k].(string), nil
+}
+
+func (s *Store) Put(k string, v string) error {
 	ke := keyError(k)
 	if ke != nil {
 		return ke
@@ -46,14 +58,13 @@ func (s *Store) Put(k string, v interface{}) error {
 	return s.log.Write("PUT", k, v)
 }
 
-func (s *Store) Delete(k string) (interface{}, error) {
-	v, err := s.Get(k)
-	if err != nil {
-		return nil, err
-	}
-
+func (s *Store) Delete(k string) error {
 	delete(s.data, k)
-	return v, s.log.Write("DEL", k)
+	kerr := keyError(k)
+	if kerr == nil {
+		return s.log.Write("DEL", k)
+	}
+	return kerr
 }
 
 func (s *Store) NewId(prefix string) string {
