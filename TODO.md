@@ -34,7 +34,7 @@ DONE
 Generic commutative operations
 ------------------------------
 
-Change txlog format from a=b to OPERATION k v
-func for each operation
-Need Apply() func to switch on OPERATION
-Introduces type compatibility error
+ * Change txlog format from a=b to OPERATION k v
+ * func for each operation
+ * Need Apply() func to switch on OPERATION
+ * Introduces type compatibility error
