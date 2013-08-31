@@ -1,6 +1,6 @@
 package gokv
 
-type TypeMismatch struct {}
+type TypeMismatch struct{}
 
 func (tm *TypeMismatch) Error() string {
 	return "Type mismatch" // XXX
@@ -8,7 +8,7 @@ func (tm *TypeMismatch) Error() string {
 
 func (store *Store) Hset(k string, hk string, val rvalue) error {
 	hash, typematch := store.data[k].(map[string]rvalue)
-	if hash != nil && ! typematch {
+	if hash != nil && !typematch {
 		return &TypeMismatch{}
 	}
 
@@ -18,7 +18,7 @@ func (store *Store) Hset(k string, hk string, val rvalue) error {
 	}
 
 	hash[hk] = val
-	if ! store.loaded {
+	if !store.loaded {
 		return nil
 	}
 	return store.log.Write("HSET", k, hk, val)
@@ -26,7 +26,7 @@ func (store *Store) Hset(k string, hk string, val rvalue) error {
 
 func (store *Store) Hget(k string, hk string) (rvalue, error) {
 	v, typematch := store.data[k].(map[string]rvalue)
-	if v != nil && ! typematch {
+	if v != nil && !typematch {
 		return nullvalue{}, &TypeMismatch{}
 	}
 

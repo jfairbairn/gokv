@@ -5,9 +5,9 @@ import (
 )
 
 type Store struct {
-	log   *Txlog
-	data  map[string]interface{}
-	idgen *IdGen
+	log    *Txlog
+	data   map[string]interface{}
+	idgen  *IdGen
 	loaded bool
 }
 
@@ -32,10 +32,13 @@ func (s *Store) Close() error {
 func (s *Store) Delete(k string) error {
 	delete(s.data, k)
 	kerr := keyError(k)
-	if kerr == nil {
-		return s.log.Write("DEL", k)
+	if kerr != nil {
+		return kerr
 	}
-	return kerr
+	if !s.loaded {
+		return nil
+	}
+	return s.log.Write("DEL", k)
 }
 
 func (s *Store) NewId(prefix string) string {

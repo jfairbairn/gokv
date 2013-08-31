@@ -72,13 +72,22 @@ func OpenTxlog(path string, store *Store) error {
 
 			op := string(result[1])
 
+			params := v.([]interface{})
 			switch op {
 			case "PUT":
-				store.data[k] = v.([]interface{})[0]
+				str, ok := params[0].(string)
+				if !ok {
+					log.Print((&TypeMismatch{}).Error())
+					continue
+				}
+				err = store.Put(k, str)
 			case "DEL":
-				delete(store.data, k)
+				err = store.Delete(k)
+				if err != nil {
+					log.Print(err.Error())
+					continue
+				}
 			case "HSET":
-				params := v.([]interface{})
 				rv, err := toRvalue(params[1])
 				if err != nil {
 					log.Print(err.Error())
