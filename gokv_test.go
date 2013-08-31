@@ -5,6 +5,7 @@ import (
 	"io"
 	"math/rand"
 	"os"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -39,7 +40,8 @@ func BenchmarkWrites(b *testing.B) {
 
 func assertEqual(expected interface{}, actual interface{}, t *testing.T) {
 	if expected != actual {
-		t.Fatalf("Expected \"%s\", got \"%s\"", expected, actual)
+		_, file, line, _ := runtime.Caller(1)
+		t.Fatalf("%s:%d: Expected \"%s\", got \"%s\"", file, line, expected, actual)
 	}
 }
 

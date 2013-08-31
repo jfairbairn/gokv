@@ -77,6 +77,17 @@ func OpenTxlog(path string, store *Store) error {
 				store.data[k] = v.([]interface{})[0]
 			case "DEL":
 				delete(store.data, k)
+			case "HSET":
+				params := v.([]interface{})
+				rv, err := toRvalue(params[1])
+				if err != nil {
+					log.Print(err.Error())
+					continue
+				}
+				err = store.Hset(k, params[0].(string), rv)
+				if err != nil {
+					log.Print(err.Error())
+				}
 			default:
 				log.Printf("Invalid op %s", op)
 			}
