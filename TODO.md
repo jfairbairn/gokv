@@ -1,6 +1,13 @@
 TODO
 ====
 
+Lists
+-----
+
+ * RPUSH/RPOP
+ * LPUSH/LPOP
+ * Insert/delete
+
 Checkpoints
 -----------
 
@@ -30,6 +37,11 @@ To be defined :)
 
 DONE
 ====
+
+Maps
+----
+
+ * HPUT/HGET
 
 Generic commutative operations
 ------------------------------
