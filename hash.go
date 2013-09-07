@@ -18,9 +18,6 @@ func (store *Store) Hset(k string, hk string, val rvalue) error {
 	}
 
 	hash[hk] = val
-	if !store.loaded {
-		return nil
-	}
 	return store.log.Write("HSET", k, hk, val)
 }
 

@@ -31,8 +31,5 @@ func (s *Store) Put(k string, v string) error {
 	}
 
 	s.data[k] = v
-	if !s.loaded {
-		return nil
-	}
 	return s.log.Write("PUT", k, v)
 }

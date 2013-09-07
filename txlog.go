@@ -32,6 +32,7 @@ func (vr *valuereader) Read(p []byte) (int, error) {
 
 type Txlog struct {
 	log *os.File
+	loaded bool
 }
 
 func OpenTxlog(path string, store *Store) error {
@@ -39,7 +40,8 @@ func OpenTxlog(path string, store *Store) error {
 	if err != nil && os.IsExist(err) {
 		return err
 	}
-
+	txlog := new(Txlog)
+	store.log = txlog
 	if err == nil {
 		reader := bufio.NewReader(f)
 		var line []byte
@@ -111,13 +113,11 @@ func OpenTxlog(path string, store *Store) error {
 		}
 	}
 
-	txlog := new(Txlog)
 	txlog.log, err = os.OpenFile(path, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
-	if err != nil {
-		return err
+	if err == nil {
+		txlog.loaded = true
 	}
-	store.log = txlog
-	return nil
+	return err
 }
 
 func (txlog *Txlog) Close() error {
@@ -125,6 +125,9 @@ func (txlog *Txlog) Close() error {
 }
 
 func (txlog *Txlog) Write(op string, k string, v ...interface{}) error {
+	if !txlog.loaded {
+		return nil
+	}
 	log := txlog.log
 	_, err := log.WriteString(op + " " + k + " ")
 	if err != nil {

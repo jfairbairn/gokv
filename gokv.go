@@ -8,7 +8,6 @@ type Store struct {
 	log    *Txlog
 	data   map[string]interface{}
 	idgen  *IdGen
-	loaded bool
 }
 
 func Open(path string) (*Store, error) {
@@ -21,7 +20,6 @@ func Open(path string) (*Store, error) {
 	if err != nil {
 		return nil, err
 	}
-	store.loaded = true
 	return &store, nil
 }
 
@@ -34,9 +32,6 @@ func (s *Store) Delete(k string) error {
 	kerr := keyError(k)
 	if kerr != nil {
 		return kerr
-	}
-	if !s.loaded {
-		return nil
 	}
 	return s.log.Write("DEL", k)
 }
